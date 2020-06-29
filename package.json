@@ -1,6 +1,7 @@
 {
   "name": "sorting-visualizer",
   "version": "0.1.0",
+  "homepage": "https://vamsimodem.github.io/AlgorithmVisualizer/",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.10.2",
@@ -18,7 +19,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "sorting-visualizer -d build"
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"

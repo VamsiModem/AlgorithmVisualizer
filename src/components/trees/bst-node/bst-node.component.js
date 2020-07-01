@@ -1,4 +1,6 @@
 import React from 'react';
+import Paper from '@material-ui/core/Paper';
+
 class BSTNodeComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -14,9 +16,9 @@ class BSTNodeComponent extends React.Component {
       }
     return (
       <div>
-      <div ref={this.props.nodeRef} id={this.props.key} className='node' style={style}>
-          {this.props.node.value}
-      </div>
+        <div ref={this.props.nodeRef} id={this.props.key} className='node' style={style}>
+            {this.props.node.value}
+        </div>
       </div>
     );
   }

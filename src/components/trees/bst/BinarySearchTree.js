@@ -28,12 +28,36 @@ export class Node {
       }
     }
 
-    insertFromArray(arr) {
-        arr.map((x,xi)=>{
-            this.insert(x);
-        })
+    insertFromArray(arr, balancedTree) {
+        if(balancedTree){
+            arr.sort();
+            this.root = this.createBalancedTree(arr, 0 , arr.length - 1, this.root);
+        }else{
+            arr.map((x,xi)=>{
+                this.insert(x);
+            })
+        }
+        console.log(balancedTree);
         return this;
-      }
+    }
+
+    createBalancedTree = (arr, start, end, parent) =>{
+        if(start > end) return null;
+        let mid = Math.floor((start + end) / 2);
+        var node = new Node(arr[mid]) 
+        node.parent = parent;
+        node.left = this.createBalancedTree(arr, start, mid - 1, node);
+        if(node.left != null){
+            node.left.parent = node;
+        }
+        if(node.right != null){
+            node.right.parent = node;
+        }
+        
+        node.right = this.createBalancedTree(arr, mid + 1, end, node);
+        
+        return node;
+    }
     
     // helper function
     insertNode(root, newNode) {
@@ -138,10 +162,12 @@ export class Node {
       
       return root
     }
+
     draw(){
       this.drawTree(this.root, 0);
       return this.root;
     }
+
     drawTree(root, depth){
       if(root == null)return;
       if(root.left != null){
@@ -153,40 +179,4 @@ export class Node {
         this.drawTree(root.right, depth + 1);
       }
     }
-
-    inOrderTraversalIter(root) {
-        var svg = document.querySelector('#svg1');
-        var html = '';
-        let stack = [];
-        let cur = root;
-        while(cur != null || stack.length > 0){
-          while(cur != null){
-            stack.push(cur);
-            cur = cur.left;
-          }
-          cur = stack.pop();
-          
-          let parentId = cur.parent == null ? null :  `node-${cur.parent.value}-depth-${cur.parent.y}`;
-          let elementId = `node-${cur.value}-depth-${cur.y}`;
-          if(parentId != null){
-            var pathId = `node-${cur.value}-depth-${cur.y}-to-${parentId}`;
-             let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("id", pathId);
-            path.setAttribute("d","M0 0");
-            path.setAttribute("stroke","#000");
-            path.setAttribute("stroke-width","01px");
-            path.setAttribute("fill","none");
-              svg.appendChild(path);
-              var connection = {
-                path:pathId,
-                startElementId: parentId,
-                endElementId:  elementId
-              }
-              this.connections.push(connection);
-          }
-          html += `<div id='${elementId}' data-parent='${parentId}'  class='node' style=' top:${cur.y * 55}px; left:${cur.x * 25}px'>${cur.value}</div>`;
-          cur = cur.right;
-        }
-        return html;
-      }
   }

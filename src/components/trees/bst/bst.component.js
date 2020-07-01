@@ -56,7 +56,7 @@ class BSTComponent extends React.Component {
           let elementId = `node-${cur.value}-depth-${cur.y}`;
           if(parentId != null){
             var pathId = `node-${cur.value}-depth-${cur.y}-to-${parentId}`;
-            paths.push(<path ref={this.state.pathRefs[pathId]} id={pathId} d="M0 0" stroke="#000" fill="none" stroke-width="1px"/>);
+            paths.push(<path ref={this.state.pathRefs[pathId]} id={pathId} d="M0 0" stroke="#014048" fill="none" stroke-width="1px"/>);
           }
             children.push(<BSTNodeComponent key={elementId} node={cur} nodeRef={this.state.childRefs[elementId]} id={elementId} />);
             cur = cur.right;

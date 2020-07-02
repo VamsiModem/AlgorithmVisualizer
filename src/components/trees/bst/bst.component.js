@@ -123,7 +123,6 @@ class BSTComponent extends React.Component {
     }
     onDFSClick = () =>{
         this.count = this.state.nodeCount;
-        console.log(this.state.root)
         this.dfs(this.state.root);
     }
     componentDidUpdate(){

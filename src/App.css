@@ -78,6 +78,12 @@ button:focus {
   background-color: #4DD0E1;
   color: #4a4a4a;
 }
+
+.node:hover{
+  cursor: pointer;
+  background-color: #027080;
+  color: #dadada;
+}
 .tree{
   position: relative;
 }
@@ -87,9 +93,12 @@ button:focus {
   height: 80vh;
   position:absolute;
   opacity: 0.5;
-  
 }
 
 .tree-cointainer{
   padding: 10px;
+  position: relative;
+  overflow: auto;
+  height: 85vh;
+  border-bottom: 6px solid #b6bcdb;
 }

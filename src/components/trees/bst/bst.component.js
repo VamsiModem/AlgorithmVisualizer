@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom'
 import BSTNodeComponent from '../bst-node/bst-node.component'
+import Button from '@material-ui/core/Button';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 
 class BSTComponent extends React.Component {
     constructor(props) {
@@ -8,6 +10,7 @@ class BSTComponent extends React.Component {
         var connections = [];
         var childRefs = {};
         var pathRefs = {};
+        var count = 0;
         this.svgContainerRef = React.createRef();
         let stack = [];
         let cur = this.props.root;
@@ -20,6 +23,7 @@ class BSTComponent extends React.Component {
           cur = stack.pop();
           let parentId = cur.parent == null ? null :  `node-${cur.parent.value}-depth-${cur.parent.y}`;
           let elementId = `node-${cur.value}-depth-${cur.y}`;
+          cur.nodeId = elementId;
           if(parentId != null){
             var pathId = `node-${cur.value}-depth-${cur.y}-to-${parentId}`;
             pathRefs[pathId] = React.createRef();
@@ -30,6 +34,7 @@ class BSTComponent extends React.Component {
               }
               connections.push(connection);
           }
+          count++;
           childRefs[elementId] = React.createRef();
           cur = cur.right;
         }
@@ -37,43 +42,12 @@ class BSTComponent extends React.Component {
           connections: connections,
           root: props.root,
           childRefs: childRefs,
-          pathRefs: pathRefs
+          pathRefs: pathRefs,
+          nodeCount: count
         };
+        this.count = count;
     }
-    render =()=>{
-        var children = [];
-        var paths = [];
-        let root = this.state.root;
-        let stack = [];
-        let cur = root;
-        while(cur != null || stack.length > 0){
-          while(cur != null){
-            stack.push(cur);
-            cur = cur.left;
-          }
-          cur = stack.pop();
-          let parentId = cur.parent == null ? null :  `node-${cur.parent.value}-depth-${cur.parent.y}`;
-          let elementId = `node-${cur.value}-depth-${cur.y}`;
-          if(parentId != null){
-            var pathId = `node-${cur.value}-depth-${cur.y}-to-${parentId}`;
-            paths.push(<path ref={this.state.pathRefs[pathId]} id={pathId} d="M0 0" stroke="#014048" fill="none" stroke-width="1px"/>);
-          }
-            children.push(<BSTNodeComponent key={elementId} node={cur} nodeRef={this.state.childRefs[elementId]} id={elementId} />);
-            cur = cur.right;
-        }
-        
-        return (
-            <div>
-                <div className='outer' id="svgContainer">
-                    <svg  ref={this.svgContainerRef} id="svg1" width="0" height="0" >
-                        {paths}
-                    </svg>
-                </div>
-                <div className='tree'>{children}</div>
-            </div>
-            
-        );
-    }
+    
     signum(x) {
         return (x < 0) ? -1 : 1;
     }
@@ -124,6 +98,7 @@ class BSTComponent extends React.Component {
         this.drawPath(path, startX, startY, endX, endY);
     
     }
+
     connectAll = () => {
         this.state.connections.map((x,xi)=>{
             var startElement = this.state.childRefs[x.startElementId].current;
@@ -133,6 +108,24 @@ class BSTComponent extends React.Component {
         });
     }
 
+    dfs = (root) =>{
+        console.log(this.count)
+        if(root == null) return;
+        this.dfs(root.left)
+        setTimeout(() =>this.paintNode(root.nodeId), ((this.state.nodeCount - this.count) + 1) *500)
+        this.count--;
+        this.dfs(root.right)
+    }
+    paintNode = (id) =>{
+        let ref = this.state.childRefs[id];
+        ref.current.style.backgroundColor = "#dea805"; 
+        ref.current.style.color = "#065a65";
+    }
+    onDFSClick = () =>{
+        this.count = this.state.nodeCount;
+        console.log(this.state.root)
+        this.dfs(this.state.root);
+    }
     componentDidUpdate(){
         this.connectAll();
     }
@@ -141,12 +134,12 @@ class BSTComponent extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        console.log(props)
         if (props.root !== state.root) {
             var connections = [];
             var childRefs = {};
             var pathRefs = {};
             let stack = [];
+            var count = 0;
             let cur = props.root;
             while(cur != null || stack.length > 0){
                 while(cur != null){
@@ -156,6 +149,7 @@ class BSTComponent extends React.Component {
                 cur = stack.pop();
                     let parentId = cur.parent == null ? null :  `node-${cur.parent.value}-depth-${cur.parent.y}`;
                     let elementId = `node-${cur.value}-depth-${cur.y}`;
+                    cur.nodeId = elementId;
                     if(parentId != undefined){
                         var pathId = `node-${cur.value}-depth-${cur.y}-to-${parentId}`;
                         pathRefs[pathId] = React.createRef();
@@ -167,6 +161,7 @@ class BSTComponent extends React.Component {
                         connections.push(connection);
                     }
                     childRefs[elementId] = React.createRef();
+                    count++;
                     cur = cur.right;
                 
             }
@@ -174,11 +169,56 @@ class BSTComponent extends React.Component {
                 root: props.root,
                 childRefs: childRefs,
                 pathRefs: pathRefs,
-                connections: connections
+                connections: connections,
+                nodeCount: count
             };
         }
         return null;
       }
+
+      render =()=>{
+        var children = [];
+        var paths = [];
+        let root = this.state.root;
+        let stack = [];
+       
+        let cur = root;
+        while(cur != null || stack.length > 0){
+          while(cur != null){
+            stack.push(cur);
+            cur = cur.left;
+          }
+          cur = stack.pop();
+          let parentId = cur.parent == null ? null :  `node-${cur.parent.value}-depth-${cur.parent.y}`;
+          let elementId = `node-${cur.value}-depth-${cur.y}`;
+          cur.nodeId = elementId;
+          if(parentId != null){
+            var pathId = `node-${cur.value}-depth-${cur.y}-to-${parentId}`;
+            paths.push(<path ref={this.state.pathRefs[pathId]} id={pathId} d="M0 0" stroke="#014048" fill="none" stroke-width="1px"/>);
+          }
+            children.push(<BSTNodeComponent key={elementId} node={cur} nodeRef={this.state.childRefs[elementId]} id={elementId} />);
+            
+            cur = cur.right;
+        }
+        
+        return (
+            <div>
+                <div style={{padding:"10px"}}>
+                    <ButtonGroup color="primary" aria-label="outlined primary button group">
+                        <Button onClick={this.onDFSClick} disabled={this.state.root == null}>DFS</Button>
+                        <Button disabled={this.state.root == null}>BFS</Button>
+                    </ButtonGroup>
+                </div>
+                <div className='outer' id="svgContainer">
+                    <svg  ref={this.svgContainerRef} id="svg1" width="0" height="0" >
+                        {paths}
+                    </svg>
+                </div>
+                <div className='tree'>{children}</div>
+            </div>
+            
+        );
+    }
 }
 
 export default BSTComponent;

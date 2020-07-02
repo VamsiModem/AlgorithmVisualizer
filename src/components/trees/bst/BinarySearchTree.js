@@ -6,6 +6,7 @@ export class Node {
       this.x = 0
       this.y = 0
       this.parent = null;
+      this.nodeId = null;
     } 
   } 
 
@@ -30,7 +31,8 @@ export class Node {
 
     insertFromArray(arr, balancedTree) {
         if(balancedTree){
-            arr.sort();
+            arr.sort((a,b)=>a-b)
+            console.log(arr)
             this.root = this.createBalancedTree(arr, 0 , arr.length - 1, this.root);
         }else{
             arr.map((x,xi)=>{
@@ -50,12 +52,12 @@ export class Node {
         if(node.left != null){
             node.left.parent = node;
         }
+        
+        
+        node.right = this.createBalancedTree(arr, mid + 1, end, node);
         if(node.right != null){
             node.right.parent = node;
         }
-        
-        node.right = this.createBalancedTree(arr, mid + 1, end, node);
-        
         return node;
     }
     

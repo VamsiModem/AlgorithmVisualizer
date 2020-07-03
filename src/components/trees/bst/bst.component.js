@@ -43,7 +43,9 @@ class BSTComponent extends React.Component {
           root: props.root,
           childRefs: childRefs,
           pathRefs: pathRefs,
-          nodeCount: count
+          nodeCount: count,
+          serializedString: '',
+          selectedNodes: []
         };
         this.count = count;
     }
@@ -121,6 +123,22 @@ class BSTComponent extends React.Component {
         ref.current.style.backgroundColor = "#dea805"; 
         ref.current.style.color = "#065a65";
     }
+    onBFSClick = () =>{
+        this.count = this.state.nodeCount;
+        let cur = this.state.root;
+        let stack = [cur];
+        while(stack.length > 0){
+            let node = stack.shift();
+            setTimeout(() =>this.paintNode(node.nodeId), ((this.state.nodeCount - this.count) + 1) *500)
+            this.count--;
+            if(node.left != null){
+                stack.push(node.left);
+            }
+            if(node.right != null){
+                stack.push(node.right);
+            }
+        }
+    }
     onDFSClick = () =>{
         this.count = this.state.nodeCount;
         this.dfs(this.state.root);
@@ -173,14 +191,131 @@ class BSTComponent extends React.Component {
             };
         }
         return null;
+    }
+      onSerialize = () =>{
+          this.count = this.state.nodeCount;
+          this.serialize(this.state.root);
       }
 
-      render =()=>{
+      serialize = (root) =>{
+        if(root == null){
+            setTimeout(() =>{
+                this.setState({serializedString: this.getSerializedString('null')});
+            }, ((this.state.nodeCount - this.count) + 1) *1000)
+            
+            return;
+        }
+        setTimeout(() =>{
+            this.paintNode(root.nodeId)
+            this.setState({serializedString: this.getSerializedString(root.value)});
+        }, ((this.state.nodeCount - this.count) + 1) *1000)
+        
+        this.count--;
+        
+        this.serialize(root.left);
+        this.serialize(root.right);
+      }
+      getSerializedString = (val) =>{
+        let serializedString = this.state.serializedString;
+        if(serializedString.length == 0){
+            serializedString = serializedString.concat(val);
+        }else{
+            serializedString = serializedString.concat(',', val);
+        }
+        return serializedString;
+      }
+
+    handleLCAClick = (node)=>{
+        let lca = this.getLowestCommonAncestor(this.state.root, this.state.selectedNodes[0], this.state.selectedNodes[1])
+        let ref = this.state.childRefs[lca.nodeId];
+        ref.current.style.backgroundColor = "#359a34"; 
+        ref.current.style.borderColor = "#046119"; 
+        ref.current.style.color = "#cbffd7";
+    }
+    getLowestCommonAncestor = (root, p ,q) =>{
+        if(p.value > root.value && q.value > root.value){
+            return this.getLowestCommonAncestor(root.right, p , q);
+        }else if (q.value < root.value && p.value < root.value){
+            return this.getLowestCommonAncestor(root.left, p , q);
+        }else{
+            return root;
+        }
+    }
+    handleInorderSuccessorClick = (node)=>{
+        console.log(node)
+    }
+    onBoundaryClick = () =>{
+        this.count = this.state.nodeCount;
+        let cur = this.state.root;
+        if(cur != null){
+            this.paintNode(cur.nodeId)
+            this.leftTreeDFS(cur.left);
+            this.paintLeaves(cur);
+            this.paintLeaves(cur.right);
+            this.rightTreeDFS(cur.right);
+        }
+    }
+    paintLeaves = (root) =>{
+        if(root == null) return;
+        this.paintLeaves(root.left);
+        if(root.left == null && root.right == null){
+            setTimeout(() =>this.paintNode(root.nodeId), ((this.state.nodeCount - this.count) + 1) *500)
+            this.count--;
+        }
+        this.paintLeaves(root.right);
+    }
+    leftTreeDFS = (root) =>{
+        if(root == null)return;
+        setTimeout(() =>this.paintNode(root.nodeId), ((this.state.nodeCount - this.count) + 1) *500)
+            this.count--;
+        if (root.left != null){
+            this.leftTreeDFS(root.left);
+        }else if(root.right != null){
+            
+            this.leftTreeDFS(root.right);
+        }
+    }
+
+    rightTreeDFS = (root) =>{
+        if(root == null)return;
+        setTimeout(() =>this.paintNode(root.nodeId), ((this.state.nodeCount - this.count) + 1) *500)
+            this.count--;
+        if (root.right != null){
+            this.rightTreeDFS(root.right);
+        }else if(root.left != null){
+            this.rightTreeDFS(root.left);
+        }
+    }
+    handleNodeClick = (node) =>{
+        let selectedNodes = this.state.selectedNodes;
+        if(selectedNodes.length >= 2){
+            let poppedNode = selectedNodes.shift();
+            let poppedRef = this.state.childRefs[poppedNode.nodeId];
+            poppedRef.current.style.backgroundColor = "#4DD0E1"; 
+            poppedRef.current.style.color = "#4a4a4a";
+            poppedRef.current.style.borderColor = "#0ba1b5";
+            selectedNodes.push(node);
+        }else{
+            selectedNodes.push(node);
+        }
+        let ref = this.state.childRefs[node.nodeId];
+        ref.current.style.backgroundColor = "#f14c49"; 
+        ref.current.style.color = "#ececec";
+        ref.current.style.borderColor = "#a90704";
+        this.setState({selectedNodes : selectedNodes});
+    }
+    
+
+    render =()=>{
         var children = [];
         var paths = [];
         let root = this.state.root;
         let stack = [];
-       
+        let selectedValues = []; 
+        let selectedIds = new Set(this.state.selectedNodes.map((x,xi)=>{
+             selectedValues.push(x.value); 
+             return x.nodeId;
+        }));
         let cur = root;
         while(cur != null || stack.length > 0){
           while(cur != null){
@@ -193,9 +328,18 @@ class BSTComponent extends React.Component {
           cur.nodeId = elementId;
           if(parentId != null){
             var pathId = `node-${cur.value}-depth-${cur.y}-to-${parentId}`;
-            paths.push(<path ref={this.state.pathRefs[pathId]} id={pathId} d="M0 0" stroke="#014048" fill="none" stroke-width="1px"/>);
+            paths.push(<path key={pathId} ref={this.state.pathRefs[pathId]} id={pathId} d="M0 0" stroke="#014048" fill="none" strokeWidth="1px"/>);
           }
-            children.push(<BSTNodeComponent key={elementId} node={cur} nodeRef={this.state.childRefs[elementId]} id={elementId} />);
+            children.push(<BSTNodeComponent 
+                key={elementId} 
+                node={cur} 
+                onLCAClick={this.handleLCAClick}
+                onInorderSuccessorClick={this.handleInorderSuccessorClick}
+                nodeRef={this.state.childRefs[elementId]} 
+                onNodeClick={this.handleNodeClick}
+                selectedValues = {selectedValues}
+                isSelected={selectedIds.has(elementId)}
+                id={elementId} />);
             
             cur = cur.right;
         }
@@ -205,8 +349,12 @@ class BSTComponent extends React.Component {
                 <div style={{padding:"10px"}}>
                     <ButtonGroup color="primary" aria-label="outlined primary button group">
                         <Button onClick={this.onDFSClick} disabled={this.state.root == null}>DFS</Button>
-                        <Button disabled={this.state.root == null}>BFS</Button>
+                        <Button onClick={this.onBFSClick} disabled={this.state.root == null}>BFS</Button>
+                        <Button onClick={this.onBoundaryClick} disabled={this.state.root == null}>Boundary</Button>
+                        <Button onClick={this.onSerialize} disabled={this.state.root == null}>Serialize</Button>
+                        
                     </ButtonGroup>
+                    {/* <div>[{this.state.serializedString}]</div> */}
                 </div>
                 <div className='outer' id="svgContainer">
                     <svg  ref={this.svgContainerRef} id="svg1" width="0" height="0" >

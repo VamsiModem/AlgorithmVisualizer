@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import Container from '@material-ui/core/Container';
 import ArrayGenerator from '../array-generator/array-generator.component';
-import { BST } from '../trees/bst/BinarySearchTree'
-import BSTComponent from '../trees/bst/bst.component'
+import { BST } from './binary-search-tree/BinarySearchTree'
+import BSTComponent from './binary-search-tree/bst.component'
 function Trees(props) {
   const [tree, setTree] = useState(null);
   const [isBalancedtree, setIsBalancedtree] = useState(false);

@@ -3,6 +3,14 @@ import ReactDOM from 'react-dom'
 import BSTNodeComponent from '../bst-node/bst-node.component'
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import { makeStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
+import InputBase from '@material-ui/core/InputBase';
+import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import SearchIcon from '@material-ui/icons/Search';
+import DirectionsIcon from '@material-ui/icons/Directions';
 
 class BSTComponent extends React.Component {
     constructor(props) {
@@ -45,7 +53,32 @@ class BSTComponent extends React.Component {
           pathRefs: pathRefs,
           nodeCount: count,
           serializedString: '',
-          selectedNodes: []
+          selectedNodes: [],
+          pathSum: '',
+          isBFS: false,
+          isDFS: false,
+          styles:{
+              clicked:{
+                color:'#dea805',
+                backgroundColor: '#065a65',
+                borderColor: '#046119'
+              },
+              default:{
+                color:'#4a4a4a',
+                backgroundColor: '#4DD0E1',
+                borderColor: '#0ba1b5'
+              },
+              lca:{
+                color:'#cbffd7',
+                backgroundColor: '#359a34',
+                border: '#046119'
+              },
+              boundary:{
+                color:'#065a65',
+                backgroundColor: '#dea805',
+                borderColor: '#0ba1b5'
+              }
+          }
         };
         this.count = count;
     }
@@ -111,7 +144,7 @@ class BSTComponent extends React.Component {
     }
 
     dfs = (root) =>{
-        console.log(this.count)
+
         if(root == null) return;
         this.dfs(root.left)
         setTimeout(() =>this.paintNode(root.nodeId), ((this.state.nodeCount - this.count) + 1) *500)
@@ -124,6 +157,7 @@ class BSTComponent extends React.Component {
         ref.current.style.color = "#065a65";
     }
     onBFSClick = () =>{
+        this.setState({isBFS: true})
         this.count = this.state.nodeCount;
         let cur = this.state.root;
         let stack = [cur];
@@ -192,45 +226,70 @@ class BSTComponent extends React.Component {
         }
         return null;
     }
-      onSerialize = () =>{
-          this.count = this.state.nodeCount;
-          this.serialize(this.state.root);
-      }
+    onSerialize = () =>{
+        this.count = this.state.nodeCount;
+        this.serialize(this.state.root);
+    }
 
-      serialize = (root) =>{
-        if(root == null){
-            setTimeout(() =>{
-                this.setState({serializedString: this.getSerializedString('null')});
-            }, ((this.state.nodeCount - this.count) + 1) *1000)
-            
-            return;
-        }
+    serialize = (root) =>{
+    if(root == null){
         setTimeout(() =>{
-            this.paintNode(root.nodeId)
-            this.setState({serializedString: this.getSerializedString(root.value)});
+            this.setState({serializedString: this.getSerializedString('null')});
         }, ((this.state.nodeCount - this.count) + 1) *1000)
         
-        this.count--;
-        
-        this.serialize(root.left);
-        this.serialize(root.right);
-      }
-      getSerializedString = (val) =>{
-        let serializedString = this.state.serializedString;
-        if(serializedString.length == 0){
-            serializedString = serializedString.concat(val);
-        }else{
-            serializedString = serializedString.concat(',', val);
-        }
-        return serializedString;
-      }
+        return;
+    }
+    setTimeout(() =>{
+        this.paintNode(root.nodeId)
+        this.setState({serializedString: this.getSerializedString(root.value)});
+    }, ((this.state.nodeCount - this.count) + 1) *1000)
+    
+    this.count--;
+    
+    this.serialize(root.left);
+    this.serialize(root.right);
+    }
+    getSerializedString = (val) =>{
+    let serializedString = this.state.serializedString;
+    if(serializedString.length == 0){
+        serializedString = serializedString.concat(val);
+    }else{
+        serializedString = serializedString.concat(',', val);
+    }
+    return serializedString;
+    }
 
+    pathSum = (root, sum, arr, paths) =>{
+        if(root == null) return {exists: false, arr: arr};;
+        arr.push(root);
+        if(root.left == null && root.right == null && sum == root.value){
+            paths.push(arr.slice(0));
+        }else{
+            this.pathSum(root.left, sum - root.value, arr, paths);
+            this.pathSum(root.right, sum - root.value, arr, paths);
+        }
+        arr.pop();
+    }
+
+    handlePathSumSearch = () =>{
+        
+        var paths = [];
+        //setTimeout(() =>this.paintNode(root.nodeId), ((this.state.nodeCount - this.count) + 1) *500)
+        this.pathSum(this.props.root, this.state.pathSum, [], paths);
+        paths.map((p,pi)=>{
+            p.map((n,ni)=>{
+                this.paintNode(n.nodeId)
+            })
+        })
+        this.count = this.state.nodeCount;
+        console.log(paths);
+    }
     handleLCAClick = (node)=>{
         let lca = this.getLowestCommonAncestor(this.state.root, this.state.selectedNodes[0], this.state.selectedNodes[1])
         let ref = this.state.childRefs[lca.nodeId];
-        ref.current.style.backgroundColor = "#359a34"; 
-        ref.current.style.borderColor = "#046119"; 
-        ref.current.style.color = "#cbffd7";
+        ref.current.style.color = this.state.styles['lca'].color;
+        ref.current.style.backgroundColor = this.state.styles['lca'].backgroundColor;
+        ref.current.style.borderColor = this.state.styles['lca'].borderColor;
     }
     getLowestCommonAncestor = (root, p ,q) =>{
         if(p.value > root.value && q.value > root.value){
@@ -291,22 +350,44 @@ class BSTComponent extends React.Component {
         if(selectedNodes.length >= 2){
             let poppedNode = selectedNodes.shift();
             let poppedRef = this.state.childRefs[poppedNode.nodeId];
-            poppedRef.current.style.backgroundColor = "#4DD0E1"; 
-            poppedRef.current.style.color = "#4a4a4a";
-            poppedRef.current.style.borderColor = "#0ba1b5";
+            poppedRef.current.style.color = this.state.styles['default'].color;
+            poppedRef.current.style.backgroundColor = this.state.styles['default'].backgroundColor;
+            poppedRef.current.style.borderColor = this.state.styles['default'].borderColor;
             selectedNodes.push(node);
         }else{
             selectedNodes.push(node);
         }
         let ref = this.state.childRefs[node.nodeId];
-        ref.current.style.backgroundColor = "#f14c49"; 
-        ref.current.style.color = "#ececec";
-        ref.current.style.borderColor = "#a90704";
+        ref.current.style.color = this.state.styles['clicked'].color;
+        ref.current.style.backgroundColor = this.state.styles['clicked'].backgroundColor;
+        ref.current.style.borderColor = this.state.styles['clicked'].borderColor;
         this.setState({selectedNodes : selectedNodes});
     }
-    
+    handlePathSumchange = (e) =>{
+        this.setState({pathSum: e.target.value});
+    }
 
     render =()=>{
+        let styles = {
+            root: {
+              padding: '2px 4px',
+              display: 'flex',
+              alignItems: 'center',
+              width: 300,
+            },
+            input: {
+              marginLeft: '1px',
+              flex: 1,
+              paddingRight: '5px'
+            },
+            iconButton: {
+              padding: 10,
+            },
+            divider: {
+              height: 28,
+              margin: 4,
+            },
+          };
         var children = [];
         var paths = [];
         let root = this.state.root;
@@ -346,16 +427,30 @@ class BSTComponent extends React.Component {
         
         return (
             <div>
-                <div style={{padding:"10px"}}>
-                    <ButtonGroup color="primary" aria-label="outlined primary button group">
-                        <Button onClick={this.onDFSClick} disabled={this.state.root == null}>DFS</Button>
-                        <Button onClick={this.onBFSClick} disabled={this.state.root == null}>BFS</Button>
-                        <Button onClick={this.onBoundaryClick} disabled={this.state.root == null}>Boundary</Button>
-                        <Button onClick={this.onSerialize} disabled={this.state.root == null}>Serialize</Button>
-                        
-                    </ButtonGroup>
-                    {/* <div>[{this.state.serializedString}]</div> */}
-                </div>
+                <Grid container  style={{padding:"10px"}}>
+                    <Grid item xs={3}>
+                        <ButtonGroup color="primary" aria-label="outlined primary button group">
+                            <Button onClick={this.onDFSClick} disabled={this.state.root == null}>DFS</Button>
+                            <Button onClick={this.onBFSClick} disabled={this.state.root == null}>BFS</Button>
+                            <Button onClick={this.onBoundaryClick} disabled={this.state.root == null}>Boundary</Button>
+                            <Button onClick={this.onSerialize} disabled={this.state.root == null}>Serialize</Button>
+                        </ButtonGroup>
+                    </Grid>
+                    <Grid item xs={3}>
+                        <div component="form" style={styles.root}>
+                            <InputBase
+                                style={styles.input}
+                                placeholder="Enter a path sum to search"
+                                type='number'
+                                onChange={this.handlePathSumchange}
+                                value={this.state.pathSum}
+                            />
+                            <IconButton type="submit" style={styles.iconButton} aria-label="search" onClick={this.handlePathSumSearch}>
+                                <SearchIcon />
+                            </IconButton>
+                        </div>
+                    </Grid>
+                </Grid>
                 <div className='outer' id="svgContainer">
                     <svg  ref={this.svgContainerRef} id="svg1" width="0" height="0" >
                         {paths}

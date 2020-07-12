@@ -2,7 +2,7 @@ import React from 'react';
 import Sorting from './components/sorting/sorting.component'
 import Trees from './components/trees/trees.component'
 import './App.css';
-import Navbar from './components/navbar/navbar.component'
+import Graph from './components/graphs/graph/graph.component'
 import {
   BrowserRouter as Router,
   Switch,
@@ -27,6 +27,14 @@ export default function App() {
               <Link className="dropdown-item" href="#">Binary Tree</Link>
             </div>
           </li>
+          <li className="nav-item dropdown">
+            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Graphs
+            </a>
+            <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+              <Link to="/graphs" className="dropdown-item" href="#">Directed Graphs</Link>
+            </div>
+          </li>
         </ul>
     </nav>
        
@@ -39,6 +47,9 @@ export default function App() {
           </Route>
           <Route path="/trees">
             <Trees />
+          </Route>
+          <Route path="/graphs">
+            <Graph />
           </Route>
           {/* <Route path="/">
             <Home />

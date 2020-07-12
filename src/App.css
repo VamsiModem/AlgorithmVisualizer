@@ -138,3 +138,6 @@ button:focus {
   fill: #1a606b;
   stroke-width: 1.5px;
 }
+.graph-container{
+  padding: 10px;
+}

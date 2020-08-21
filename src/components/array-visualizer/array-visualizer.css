@@ -1,0 +1,5 @@
+.array-container {
+  display: flex;
+  justify-content: center;
+  line-height: 50px;
+}

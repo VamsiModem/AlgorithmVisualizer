@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import BSTNodeComponent from '../bst-node/bst-node.component';
+import BSTNodeComponent from '../bst-node/bst-node';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import { makeStyles } from '@material-ui/core/styles';
@@ -28,7 +28,6 @@ class BSTComponent extends React.Component {
         stack.push(cur);
         cur = cur.left;
       }
-      cur = stack.pop();
       cur = stack.pop();
       let parentId =
         cur.parent == null
@@ -508,118 +507,9 @@ class BSTComponent extends React.Component {
 
       cur = cur.right;
     }
-    let data = {
-      nodes: [
-        {
-          id: '1',
-          label: '1',
-          labelType: 'html',
-        },
-        {
-          id: '2',
-          label: '2',
-          labelType: 'html',
-        },
-        {
-          id: '2',
-          label: '2',
-          labelType: 'html',
-        },
-        {
-          id: '3',
-          label: '3',
-          labelType: 'html',
-        },
-        {
-          id: '4',
-          label: '4',
-          labelType: 'html',
-        },
-        {
-          id: '5',
-          label: '5',
-          labelType: 'html',
-        },
-        {
-          id: '6',
-          label: '6',
-          labelType: 'html',
-        },
-      ],
-      links: [
-        {
-          source: '1',
-          target: '2',
-          config: {
-            curve: d3.curveBasis,
-          },
-        },
-        {
-          source: '1',
-          target: '3',
-          config: {
-            curve: d3.curveBasis,
-          },
-        },
-        {
-          source: '3',
-          target: '4',
-          config: {
-            curve: d3.curveBasis,
-          },
-        },
-        {
-          source: '4',
-          target: '5',
-          config: {
-            curve: d3.curveBasis,
-          },
-        },
-        {
-          source: '5',
-          target: '6',
-          config: {
-            curve: d3.curveBasis,
-          },
-        },
-        {
-          source: '3',
-          target: '6',
-          config: {
-            curve: d3.curveBasis,
-          },
-        },
-        {
-          source: '2',
-          target: '6',
-          config: {
-            curve: d3.curveBasis,
-          },
-        },
-        {
-          source: '5',
-          target: '6',
-          config: {
-            curve: d3.curveBasis,
-          },
-        },
-      ],
-    };
 
     return (
       <div>
-        <DagreGraph
-          nodes={data.nodes}
-          links={data.links}
-          shape="circle"
-          width="500"
-          height="500"
-          config={{
-            rankdir: 'LR',
-            align: 'UL',
-            ranker: 'tight-tree',
-          }}
-        ></DagreGraph>
         <Grid container style={{ padding: '10px' }}>
           <Grid item xs={3}>
             <ButtonGroup

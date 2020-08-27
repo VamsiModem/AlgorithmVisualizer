@@ -4,6 +4,7 @@ import Trees from './components/trees/trees';
 import './App.css';
 import Graph from './components/graphs/graph/graph';
 import BinarySearchVisualizer from './components/searching/binary-search/binary-search-visualizer';
+import PermutationGenerator from './components/permutations/permutation-generator';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 export default function App() {
   return (
@@ -73,6 +74,12 @@ export default function App() {
                 </Link>
               </div>
             </li>
+            <li className="nav-item dropdown">
+            <Link className="nav-link" to="/permutations">
+                Permuations
+              </Link>
+              
+            </li>
           </ul>
         </nav>
 
@@ -90,6 +97,9 @@ export default function App() {
           </Route>
           <Route path="/binary-search">
             <BinarySearchVisualizer />
+          </Route>
+          <Route path="/permutations">
+            <PermutationGenerator />
           </Route>
         </Switch>
       </div>

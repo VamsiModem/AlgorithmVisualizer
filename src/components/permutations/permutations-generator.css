@@ -1,0 +1,11 @@
+.permutations-generator{
+    height: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.perm-value{
+    text-align:center;
+    letter-spacing: 1.5px;
+    font-size: 0.8em;
+}

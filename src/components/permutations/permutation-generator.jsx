@@ -1,9 +1,9 @@
 
 import React from 'react';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import {TextField, Button }from '@material-ui/core';
 import './permutations-generator.css'
 import PermutationIterator from './permutation-iterator'
+import NumberToString from '../utils/number-to-english'
 class PermutationGenerator extends React.Component {
     constructor(props){
         super(props);
@@ -87,6 +87,7 @@ class PermutationGenerator extends React.Component {
                     <Button  disabled={this.state.value.length > 8} variant="contained" style={{verticalAlign:'middle'}} color="primary" onClick={this.generatePermutations}>
                          Generate Perumations
                     </Button>
+                    <NumberToString/>
             </div>
             <table className="table table-sm"><tbody>{trs}</tbody></table>
         </div>
